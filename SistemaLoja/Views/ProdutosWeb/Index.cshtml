@@ -1,0 +1,43 @@
+﻿@model IEnumerable<SistemaLoja.Application.DTOs.ProdutoDto>
+
+@{
+    ViewData["Title"] = "Produtos";
+}
+
+<h2 class="mt-3">Lista de Produtos</h2>
+<a asp-action="Create" class="btn btn-primary mb-3">Novo Produto</a>
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Descrição</th>
+            <th>Preço</th>
+            <th>Status</th>
+            <th class="text-end">Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model == null || !Model.Any())
+        {
+            <tr>
+                <td colspan="5" class="text-center">Nenhum produto cadastrado.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var produto in Model)
+            {
+                <tr>
+                    <td>@produto.Nome</td>
+                    <td>@produto.Descricao</td>
+                    <td>@produto.Preco.ToString("C")</td>
+                    <td>@(produto.Ativo ? "Ativo" : "Inativo")</td>
+                    <td class="text-end">
+                        <a asp-action="Edit" asp-route-id="@produto.Id" class="btn btn-warning btn-sm">Editar</a>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

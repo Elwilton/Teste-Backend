@@ -1,0 +1,84 @@
+﻿@model SistemaLoja.Application.DTOs.CriarPedidoDto
+@using SistemaLoja.Application.DTOs
+
+@{
+    ViewData["Title"] = "Novo Pedido";
+    var produtos = ViewBag.Produtos as IEnumerable<ProdutoDto>;
+}
+
+<h2 class="mt-3 mb-4">Novo Pedido</h2>
+
+@if (produtos == null || !produtos.Any())
+{
+    <div class="alert alert-warning">
+        Nenhum produto disponível para criar pedidos.
+    </div>
+}
+else
+{
+    <form asp-action="Create" method="post" id="pedidoForm">
+        <div class="form-group">
+            <label class="fw-semibold">Selecione os produtos:</label>
+
+            @for (int i = 0; i < produtos.Count(); i++)
+            {
+                var p = produtos.ElementAt(i);
+                <div class="form-check mb-2">
+                    <input type="checkbox"
+                           class="form-check-input produto-checkbox"
+                           value="@p.Id"
+                           id="prod_@p.Id" />
+
+                    <label class="form-check-label" for="prod_@p.Id">
+                        @p.Nome - @p.Preco.ToString("C")
+                    </label>
+
+                    <input type="number"
+                           class="form-control d-inline w-auto ms-2 quantidade-input"
+                           value="1"
+                           min="1"
+                           data-produto-id="@p.Id" />
+                </div>
+            }
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Salvar Pedido</button>
+        <a asp-action="Index" class="btn btn-secondary mt-3">Cancelar</a>
+    </form>
+}
+
+@section Scripts {
+    <script>
+    document.getElementById("pedidoForm").addEventListener("submit", function (e) {
+        document.querySelectorAll(".dynamic-input").forEach(el => el.remove());
+
+        const form = this;
+        const selecionados = document.querySelectorAll(".produto-checkbox:checked");
+
+        if (selecionados.length === 0) {
+            e.preventDefault();
+            alert("Selecione ao menos um produto para o pedido.");
+            return;
+        }
+
+        selecionados.forEach((check, index) => {
+            const id = check.value;
+            const quantidadeInput = document.querySelector(`.quantidade-input[data-produto-id='${id}']`);
+            const quantidade = quantidadeInput ? quantidadeInput.value : 1;
+
+            const hiddenId = document.createElement("input");
+            hiddenId.type = "hidden";
+            hiddenId.name = `Itens[${index}].ProdutoId`;
+            hiddenId.value = id;
+            hiddenId.classList.add("dynamic-input");
+            form.appendChild(hiddenId);
+
+            const hiddenQtd = document.createElement("input");
+            hiddenQtd.type = "hidden";
+            hiddenQtd.name = `Itens[${index}].Quantidade`;
+            hiddenQtd.value = quantidade;
+            hiddenQtd.classList.add("dynamic-input");
+            form.appendChild(hiddenQtd);
+        });
+    });</script>
+}
